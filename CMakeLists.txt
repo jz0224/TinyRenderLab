@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.10)
+
+set(PROJECT_NAME TinyRenderLab)
+project(${PROJECT_NAME})
+
+set(CMAKE_CXX_STANDARD 17)
+
+set (BIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/${PlatformName}")
+
+FILE(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp") 
+FILE(GLOB HEAD_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h") 
+
+add_executable(${PROJECT_NAME} ${SRC_FILES} ${HEAD_FILES})
+
+SET(EXECUTABLE_OUTPUT_PATH ${BIN_DIR})
