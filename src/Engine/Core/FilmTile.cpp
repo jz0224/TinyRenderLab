@@ -1,4 +1,4 @@
-#include "FilmTile.h"
+#include "Core/FilmTile.h"
 
 void FilmTile::AddSample(const Vector2f& pos, const Vector3f& radiance)
 {

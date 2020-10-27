@@ -5,11 +5,11 @@
 #include <vector>
 #include <memory>
 #include <ctime>
-#include "Object.h"
-#include "Ray.h"
-#include "Bounds.h"
-#include "Intersection.h"
-#include "Vector.h"
+#include "Basic/Object.h"
+#include "Basic/Geometry.h"
+#include "Basic/Geometry.h"
+#include "Basic/Intersection.h"
+#include "Basic/Geometry.h"
 
 struct BVHBuildNode;
 // BVHAccel Forward Declarations
@@ -25,7 +25,7 @@ public:
 
     // BVHAccel Public Methods
     BVHAccel(std::vector<Object*> p, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::NAIVE);
-    Bounds3 WorldBound() const;
+    Bounds3f WorldBound() const;
     ~BVHAccel();
 
     Intersection Intersect(const Ray &ray) const;
@@ -46,7 +46,7 @@ public:
 };
 
 struct BVHBuildNode {
-    Bounds3 bounds;
+    Bounds3f bounds;
     BVHBuildNode *left;
     BVHBuildNode *right;
     Object* object;
@@ -56,7 +56,7 @@ public:
     int splitAxis=0, firstPrimOffset=0, nPrimitives=0;
     // BVHBuildNode Public Methods
     BVHBuildNode(){
-        bounds = Bounds3();
+        bounds = Bounds3f();
         left = nullptr;right = nullptr;
         object = nullptr;
     }

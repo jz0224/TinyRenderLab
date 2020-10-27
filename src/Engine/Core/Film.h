@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include "Bounds.h"
-#include "Scene.h"
+#include "Basic/Geometry.h"
+#include "Core/Scene.h"
 #include <string>
 
 class FilmTile;
@@ -15,7 +15,7 @@ public:
 		pixels(width, std::vector<Vector3f>(height)),
 		m_FileName(filename) {};
 
-	const std::shared_ptr<FilmTile> GenFilmTile(const Bounds2& frame) const;
+	const std::shared_ptr<FilmTile> GenFilmTile(const Bounds2i& frame) const;
 	void MergeFilmTile(std::shared_ptr<FilmTile> filmTile);
 	void WriteImage();
 

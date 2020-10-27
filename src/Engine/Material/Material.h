@@ -1,9 +1,9 @@
 #ifndef RAYTRACING_MATERIAL_H
 #define RAYTRACING_MATERIAL_H
 
-#include "Vector.h"
+#include "Basic/Geometry.h"
 
-enum MaterialType { DIFFUSE};
+enum MaterialType { DIFFUSE, MIRROR };
 
 class Material{
 private:
@@ -11,7 +11,7 @@ private:
     // Compute reflection direction
     Vector3f reflect(const Vector3f &I, const Vector3f &N) const
     {
-        return I - 2 * dotProduct(I, N) * N;
+        return I - 2 * Dot(I, N) * N;
     }
 
     // Compute refraction direction using Snell's law
@@ -27,7 +27,7 @@ private:
     // If the ray is inside, you need to invert the refractive indices and negate the normal N
     Vector3f refract(const Vector3f &I, const Vector3f &N, const float &ior) const
     {
-        float cosi = clamp(-1, 1, dotProduct(I, N));
+        float cosi = Clamp(-1, 1, Dot(I, N));
         float etai = 1, etat = ior;
         Vector3f n = N;
         if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= -N; }
@@ -47,7 +47,7 @@ private:
     // \param[out] kr is the amount of light reflected
     void fresnel(const Vector3f &I, const Vector3f &N, const float &ior, float &kr) const
     {
-        float cosi = clamp(-1, 1, dotProduct(I, N));
+        float cosi = Clamp(-1, 1, Dot(I, N));
         float etai = 1, etat = ior;
         if (cosi > 0) {  std::swap(etai, etat); }
         // Compute sini using Snell's law
@@ -77,7 +77,7 @@ private:
             float invLen = 1.0f / std::sqrt(N.y * N.y + N.z * N.z);
             C = Vector3f(0.0f, N.z * invLen, -N.y *invLen);
         }
-        B = crossProduct(C, N);
+        B = Cross(C, N);
         return a.x * B + a.y * C + a.z * N;
     }
 
@@ -116,7 +116,7 @@ MaterialType Material::getType(){return m_type;}
 ///Vector3f Material::getColor(){return m_color;}
 Vector3f Material::getEmission() {return m_emission;}
 bool Material::hasEmission() {
-    if (m_emission.norm() > EPSILON) return true;
+    if (m_emission.Length() > EPSILON) return true;
     else return false;
 }
 
@@ -125,7 +125,7 @@ Vector3f Material::getColorAt(double u, double v) {
 }
 
 
-Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
+Vector3f Material::sample(const Vector3f &wo, const Vector3f &N){
     switch(m_type){
         case DIFFUSE:
         {
@@ -138,6 +138,11 @@ Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
             
             break;
         }
+		case MIRROR:
+		{
+			return -wo + 2 * Dot(wo, N) * N;
+			break;
+		}
     }
 }
 
@@ -146,12 +151,17 @@ float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
         case DIFFUSE:
         {
             // uniform sample probability 1 / (2 * PI)
-            if (dotProduct(wo, N) > 0.0f)
+            if (Dot(wo, N) > 0.0f)
                 return 0.5f / M_PI;
             else
                 return 0.0f;
             break;
         }
+		case MIRROR:
+		{
+			return 1.0f;
+			break;
+		}
     }
 }
 
@@ -160,7 +170,7 @@ Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &
         case DIFFUSE:
         {
             // calculate the contribution of diffuse   model
-            float cosalpha = dotProduct(N, wo);
+            float cosalpha = Dot(N, wo);
             if (cosalpha > 0.0f) {
                 Vector3f diffuse = Kd / M_PI;
                 return diffuse;
@@ -169,6 +179,15 @@ Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &
                 return Vector3f(0.0f);
             break;
         }
+		case MIRROR:
+		{
+			if (wi == -wo + 2 * Dot(wo, N) * N)
+				return 1.0f / fabs(Dot(N, wi));
+				//return Vector3f(1.0f);
+			else
+				return Vector3f(0.0f);
+			break;
+		}
     }
 }
 

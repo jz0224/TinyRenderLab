@@ -1,12 +1,12 @@
 #pragma once
 
 #include <vector>
-#include "Vector.h"
-#include "Object.h"
-#include "Light.h"
-#include "AreaLight.h"
-#include "BVH.h"
-#include "Ray.h"
+#include "Basic/Geometry.h"
+#include "Basic/Object.h"
+#include "Basic/Light.h"
+#include "Basic/AreaLight.h"
+#include "Core/BVH.h"
+#include "Basic/Geometry.h"
 
 
 class Scene
@@ -46,7 +46,7 @@ public:
     // Compute reflection direction
     Vector3f reflect(const Vector3f &I, const Vector3f &N) const
     {
-        return I - 2 * dotProduct(I, N) * N;
+        return I - 2 * Dot(I, N) * N;
     }
 
 
@@ -64,7 +64,7 @@ public:
 // If the ray is inside, you need to invert the refractive indices and negate the normal N
     Vector3f refract(const Vector3f &I, const Vector3f &N, const float &ior) const
     {
-        float cosi = clamp(-1, 1, dotProduct(I, N));
+        float cosi = Clamp(-1, 1, Dot(I, N));
         float etai = 1, etat = ior;
         Vector3f n = N;
         if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= -N; }
@@ -86,7 +86,7 @@ public:
 // \param[out] kr is the amount of light reflected
     void fresnel(const Vector3f &I, const Vector3f &N, const float &ior, float &kr) const
     {
-        float cosi = clamp(-1, 1, dotProduct(I, N));
+        float cosi = Clamp(-1, 1, Dot(I, N));
         float etai = 1, etat = ior;
         if (cosi > 0) {  std::swap(etai, etat); }
         // Compute sini using Snell's law

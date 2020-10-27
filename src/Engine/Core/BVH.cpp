@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
-#include "BVH.h"
+#include "Core/BVH.h"
+#include <array>
 
 BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
                    SplitMethod splitMethod)
@@ -30,7 +31,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
     BVHBuildNode* node = new BVHBuildNode();
 
     // Compute bounds of all primitives in BVH node
-    Bounds3 bounds;
+    Bounds3f bounds;
     for (int i = 0; i < objects.size(); ++i)
         bounds = Union(bounds, objects[i]->getBounds());
     if (objects.size() == 1) {
@@ -51,11 +52,11 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
         return node;
     }
     else {
-        Bounds3 centroidBounds;
+        Bounds3f centroidBounds;
         for (int i = 0; i < objects.size(); ++i)
             centroidBounds =
                 Union(centroidBounds, objects[i]->getBounds().Centroid());
-        int dim = centroidBounds.maxExtent();
+        int dim = centroidBounds.MaximumExtent();
         switch (dim) {
         case 0:
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2) {

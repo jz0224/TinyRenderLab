@@ -1,10 +1,11 @@
-#include "Renderer.h"
-#include "Scene.h"
-#include "Triangle.h"
-#include "Sphere.h"
-#include "Vector.h"
-#include "global.h"
+#include "Core/Renderer.h"
+#include "Core/Scene.h"
+#include "Basic/Triangle.h"
+#include "Basic/Sphere.h"
+#include "Basic/Geometry.h"
+#include "Basic/Util.h"
 #include <chrono>
+#include <ROOT_PATH.h>
 
 // In the main function of the program, we create the scene (create objects and
 // lights) as well as set the options for the render (image width and height,
@@ -13,7 +14,7 @@
 int main(int argc, char** argv)
 {
     // Change the definition here to change resolution
-    Scene scene(1280, 1280);
+    Scene scene(784, 784);
 
     Material* red = new Material(DIFFUSE, Vector3f(0.0f));
     red->Kd = Vector3f(0.63f, 0.065f, 0.05f);
@@ -24,12 +25,14 @@ int main(int argc, char** argv)
     Material* light = new Material(DIFFUSE, (8.0f * Vector3f(0.747f+0.058f, 0.747f+0.258f, 0.747f) + 15.6f * Vector3f(0.740f+0.287f,0.740f+0.160f,0.740f) + 18.4f *Vector3f(0.737f+0.642f,0.737f+0.159f,0.737f)));
     light->Kd = Vector3f(0.65f);
 
-    MeshTriangle floor("../data/models/cornellbox/floor.obj", white);
-    MeshTriangle shortbox("../data/models/cornellbox/shortbox.obj", white);
-    MeshTriangle tallbox("../data/models/cornellbox/tallbox.obj", white);
-    MeshTriangle left("../data/models/cornellbox/left.obj", red);
-    MeshTriangle right("../data/models/cornellbox/right.obj", green);
-    MeshTriangle light_("../data/models/cornellbox/light.obj", light);
+	Material* mirror = new Material(MIRROR);
+
+    MeshTriangle floor(ROOT_PATH+"data/models/cornellbox/floor.obj", white);
+    MeshTriangle shortbox(ROOT_PATH + "data/models/cornellbox/shortbox.obj", mirror);
+    MeshTriangle tallbox(ROOT_PATH + "data/models/cornellbox/tallbox.obj", mirror);
+    MeshTriangle left(ROOT_PATH + "data/models/cornellbox/left.obj", red);
+    MeshTriangle right(ROOT_PATH + "data/models/cornellbox/right.obj", green);
+    MeshTriangle light_(ROOT_PATH + "data/models/cornellbox/light.obj", light);
 
     scene.Add(&floor);
     scene.Add(&shortbox);

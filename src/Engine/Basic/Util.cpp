@@ -1,4 +1,4 @@
-#include "global.h"
+#include "Basic/Util.h"
 
 uint32_t XorShift32()
 {
@@ -10,7 +10,8 @@ uint32_t XorShift32()
 	return x;
 }
 
-void ResetRandom(int seed = 1) {
+void ResetRandom(int seed)
+{
 	s_RndState = seed;
 }
 
@@ -18,3 +19,4 @@ float GetRandomFloat()
 {
 	return (double)(XorShift32()) / 0xffffffff;
 }
+

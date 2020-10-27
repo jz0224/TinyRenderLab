@@ -1,13 +1,13 @@
 #include <fstream>
 #include "Scene.h"
-#include "Renderer.h"
+#include "Core/Renderer.h"
 #include <algorithm>
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include "Film.h"
-#include "FilmTile.h"
-#include "Bounds.h"
+#include "Core/Film.h"
+#include "Core/FilmTile.h"
+#include "Basic/Geometry.h"
 
 
 const float EPSILON = 0.00001;
@@ -58,7 +58,7 @@ void Renderer::Render(const Scene& scene)
 	int w = scene.width;
 	int h = scene.height;
 
-	auto film = Film(scene, "64spp.jpg");
+	auto film = Film(scene, "mirror.jpg");
 
 	std::vector<Vector3f> framebuffer(w * h);
 	std::vector<std::vector<Vector3f>> tempbuffer(h, std::vector<Vector3f>(w));
@@ -68,10 +68,16 @@ void Renderer::Render(const Scene& scene)
     Vector3f eye_pos(278, 273, -800);
 
     // change the spp value to change sample ammount
-    int spp = 1024;
-    std::cout << "SPP: " << spp << "\n";
+    int spp = 8;
+    std::cout << "SPP: " << spp << std::endl;
 
-	const int threadNum = std::thread::hardware_concurrency();
+	int threadNum = 1;
+
+#ifndef _DEBUG
+	threadNum = std::thread::hardware_concurrency();
+#endif
+
+	std::cout << "thread num: " << threadNum << std::endl;
 
 	const int tileSize = 64;
 	const int rowTiles = std::ceil(double(w) / tileSize);
@@ -94,7 +100,7 @@ void Renderer::Render(const Scene& scene)
 
 			ResetRandom(tileID + 1);
 
-			auto filmTile = film.GenFilmTile(Bounds2(Vector2f(x0, y0), Vector2f(x1, y1)));
+			auto filmTile = film.GenFilmTile(Bounds2i(Vector2i(x0, y0), Vector2i(x1, y1)));
 
 			for (const auto pos : filmTile->AllPos())
 			{
@@ -104,7 +110,7 @@ void Renderer::Render(const Scene& scene)
 				float x = (2 * (i + 0.5) / (float)w - 1) * imageAspectRatio * scale;
 				float y = (1 - 2 * (j + 0.5) / (float)h) * scale;
 
-				Vector3f dir = normalize(Vector3f(-x, y, 1));
+				Vector3f dir = Normalize(Vector3f(-x, y, 1));
 				Vector3f radiance = {};
 				for (int k = 0; k < spp; k++)
 				{

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Vector.h"
-#include "Light.h"
-#include "global.h"
+#include "Basic/Geometry.h"
+#include "Basic/Light.h"
+#include "Basic/Util.h"
 
 class AreaLight : public Light
 {

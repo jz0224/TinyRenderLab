@@ -12,7 +12,7 @@ thread_local static uint32_t s_RndState;
 
 inline float deg2rad(const float& deg) { return deg * M_PI / 180.0; }
 
-inline float clamp(const float &lo, const float &hi, const float &v)
+inline float Clamp(const float &lo, const float &hi, const float &v)
 { return std::max(lo, std::min(hi, v)); }
 
 inline bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, float &x1)
@@ -44,7 +44,7 @@ inline void UpdateProgress(float progress)
     }
     std::cout << "] " << int(progress * 100.0) << " %\r";
     std::cout.flush();
-};
+}
 
 uint32_t XorShift32();
 

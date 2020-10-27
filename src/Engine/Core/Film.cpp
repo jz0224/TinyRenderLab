@@ -3,7 +3,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-const std::shared_ptr<FilmTile> Film::GenFilmTile(const Bounds2 & frame) const 
+const std::shared_ptr<FilmTile> Film::GenFilmTile(const Bounds2i & frame) const 
 {
 	return std::make_shared<FilmTile>(frame);
 }

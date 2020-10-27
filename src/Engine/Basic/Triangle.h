@@ -1,11 +1,10 @@
 #pragma once
 
 #include "BVH.h"
-#include "Intersection.h"
-#include "Material.h"
-#include "OBJ_Loader.h"
-#include "Object.h"
-#include "Triangle.h"
+#include "Basic/Intersection.h"
+#include "Material/Material.h"
+#include "Basic/OBJ_Loader.h"
+#include "Basic/Object.h"
 #include <cassert>
 #include <array>
 
@@ -15,24 +14,24 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1,
 {
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;
-    Vector3f pvec = crossProduct(dir, edge2);
-    float det = dotProduct(edge1, pvec);
+    Vector3f pvec = Cross(dir, edge2);
+    float det = Dot(edge1, pvec);
     if (det == 0 || det < 0)
         return false;
 
     Vector3f tvec = orig - v0;
-    u = dotProduct(tvec, pvec);
+    u = Dot(tvec, pvec);
     if (u < 0 || u > det)
         return false;
 
-    Vector3f qvec = crossProduct(tvec, edge1);
-    v = dotProduct(dir, qvec);
+    Vector3f qvec = Cross(tvec, edge1);
+    v = Dot(dir, qvec);
     if (v < 0 || u + v > det)
         return false;
 
     float invDet = 1 / det;
 
-    tnear = dotProduct(edge2, qvec) * invDet;
+    tnear = Dot(edge2, qvec) * invDet;
     u *= invDet;
     v *= invDet;
 
@@ -54,8 +53,8 @@ public:
     {
         e1 = v1 - v0;
         e2 = v2 - v0;
-        normal = normalize(crossProduct(e1, e2));
-        area = crossProduct(e1, e2).norm()*0.5f;
+        normal = Normalize(Cross(e1, e2));
+        area = Cross(e1, e2).Length()*0.5f;
     }
 
     bool intersect(const Ray& ray) override;
@@ -71,7 +70,7 @@ public:
         //        implemented.");
     }
     Vector3f evalDiffuseColor(const Vector2f&) const override;
-    Bounds3 getBounds() override;
+    Bounds3f getBounds() override;
     void Sample(Intersection &pos, float &pdf){
         float x = std::sqrt(GetRandomFloat()), y = GetRandomFloat();
         pos.coords = v0 * (1.0f - x) + v1 * (x * (1.0f - y)) + v2 * (x * y);
@@ -157,7 +156,7 @@ public:
         return intersect;
     }
 
-    Bounds3 getBounds() { return bounding_box; }
+    Bounds3f getBounds() { return bounding_box; }
 
     void getSurfaceProperties(const Vector3f& P, const Vector3f& I,
                               const uint32_t& index, const Vector2f& uv,
@@ -166,9 +165,9 @@ public:
         const Vector3f& v0 = vertices[vertexIndex[index * 3]];
         const Vector3f& v1 = vertices[vertexIndex[index * 3 + 1]];
         const Vector3f& v2 = vertices[vertexIndex[index * 3 + 2]];
-        Vector3f e0 = normalize(v1 - v0);
-        Vector3f e1 = normalize(v2 - v1);
-        N = normalize(crossProduct(e0, e1));
+        Vector3f e0 = Normalize(v1 - v0);
+        Vector3f e1 = Normalize(v2 - v1);
+        N = Normalize(Cross(e0, e1));
         const Vector2f& st0 = stCoordinates[vertexIndex[index * 3]];
         const Vector2f& st1 = stCoordinates[vertexIndex[index * 3 + 1]];
         const Vector2f& st2 = stCoordinates[vertexIndex[index * 3 + 2]];
@@ -180,7 +179,7 @@ public:
         float scale = 5;
         float pattern =
             (fmodf(st.x * scale, 1) > 0.5) ^ (fmodf(st.y * scale, 1) > 0.5);
-        return lerp(Vector3f(0.815, 0.235, 0.031),
+        return Lerp(Vector3f(0.815, 0.235, 0.031),
                     Vector3f(0.937, 0.937, 0.231), pattern);
     }
 
@@ -206,7 +205,7 @@ public:
         return m->hasEmission();
     }
 
-    Bounds3 bounding_box;
+    Bounds3f bounding_box;
     std::unique_ptr<Vector3f[]> vertices;
     uint32_t numTriangles;
     std::unique_ptr<uint32_t[]> vertexIndex;
@@ -227,32 +226,32 @@ inline bool Triangle::intersect(const Ray& ray, float& tnear,
     return false;
 }
 
-inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
+inline Bounds3f Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 
 inline Intersection Triangle::getIntersection(Ray ray)
 {
     Intersection inter;
 
-    if (dotProduct(ray.direction, normal) > 0)
+    if (Dot(ray.direction, normal) > 0)
         return inter;
     double u, v, t_tmp = 0;
-    Vector3f pvec = crossProduct(ray.direction, e2);
-    double det = dotProduct(e1, pvec);
+    Vector3f pvec = Cross(ray.direction, e2);
+    double det = Dot(e1, pvec);
     if (fabs(det) < EPSILON)
         return inter;
 
     double det_inv = 1. / det;
     Vector3f tvec = ray.origin - v0;
-    u = dotProduct(tvec, pvec) * det_inv;
+    u = Dot(tvec, pvec) * det_inv;
     if (u < 0 || u > 1)
         return inter;
-    Vector3f qvec = crossProduct(tvec, e1);
-    v = dotProduct(ray.direction, qvec) * det_inv;
+    Vector3f qvec = Cross(tvec, e1);
+    v = Dot(ray.direction, qvec) * det_inv;
     if (v < 0 || u + v > 1)
         return inter;
-    t_tmp = dotProduct(e2, qvec) * det_inv;
+    t_tmp = Dot(e2, qvec) * det_inv;
 
-    // TODO find ray triangle intersection
+    //find ray triangle intersection
     inter.happened = (t_tmp > 0) && (u > 0) && (v > 0) && (1 - u - v > 0);
     inter.coords = ray(t_tmp);
     inter.normal = normal;

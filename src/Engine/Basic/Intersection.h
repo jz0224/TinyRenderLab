@@ -1,7 +1,7 @@
 #ifndef RAYTRACING_INTERSECTION_H
 #define RAYTRACING_INTERSECTION_H
-#include "Vector.h"
-#include "Material.h"
+#include "Basic/Geometry.h"
+#include "Material/Material.h"
 class Object;
 class Sphere;
 
